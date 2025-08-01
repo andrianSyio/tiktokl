@@ -1,14 +1,24 @@
-// /api/state.js
-import { state } from "../../state.js";
+// api/state.js
+
+const soalList = [
+  {
+    soal: "Sebutkan alat mandi!",
+    jawaban: ["Sabun", "Sampo", "Sikat gigi", "Handuk", "Pasta gigi", "Gayung"]
+  },
+  {
+    soal: "Sebutkan buah berwarna merah!",
+    jawaban: ["Apel", "Stroberi", "Semangka", "Ceri", "Delima", "Tomat"]
+  },
+  {
+    soal: "Sebutkan hewan peliharaan!",
+    jawaban: ["Kucing", "Anjing", "Ikan", "Burung", "Kelinci", "Hamster"]
+  },
+  // ... Tambah total 20 soal
+];
 
 export default function handler(req, res) {
-  if (req.method !== "GET") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  const randomIndex = Math.floor(Math.random() * soalList.length);
+  const soalDipilih = soalList[randomIndex];
 
-  const currentSoal = state.soalList[state.soalIndex];
-  res.status(200).json({
-    soal: currentSoal.soal,
-    jawabanTerbuka: state.jawabanTerbuka
-  });
+  res.status(200).json(soalDipilih);
 }
