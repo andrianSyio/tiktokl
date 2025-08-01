@@ -1,29 +1,27 @@
-import { soalSekarang, tambahJawaban, terjawab } from '../../data.js';
+import data from '../../data';
+import { state } from '../../state';
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Hanya menerima POST' });
-  }
+export default function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).end();
 
   const { nama, jawaban } = req.body;
+  const currentSoal = data[state.soalIndex];
+  const foundIndex = currentSoal.jawaban.findIndex(
+    (j, i) =>
+      j.text.toLowerCase() === jawaban.toLowerCase() &&
+      !state.jawabanTerbuka.includes(i)
+  );
 
-  if (!nama || !jawaban) {
-    return res.status(400).json({ error: 'Parameter nama dan jawaban wajib diisi' });
+  if (foundIndex !== -1) {
+    state.jawabanTerbuka.push(foundIndex);
+    return res.status(200).json({
+      status: 'benar',
+      nama,
+      jawaban,
+      index: foundIndex,
+      poin: currentSoal.jawaban[foundIndex].poin,
+    });
   }
 
-  const soal = soalSekarang();
-  const jawabanLower = jawaban.toLowerCase();
-
-  const benar = soal.jawaban.some(j => j.toLowerCase() === jawabanLower);
-  const sudah = terjawab.some(j => j.jawaban === jawabanLower);
-
-  if (benar && !sudah) {
-    tambahJawaban(jawabanLower, nama);
-    return res.status(200).json({ status: 'benar', message: 'Jawaban benar!' });
-  }
-
-  return res.status(200).json({
-    status: 'salah',
-    message: sudah ? 'Jawaban sudah ditemukan' : 'Jawaban salah'
-  });
+  return res.status(200).json({ status: 'salah', jawaban });
 }
