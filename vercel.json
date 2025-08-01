@@ -1,5 +1,6 @@
 {
-  "rewrites": [
-    { "source": "/api/list", "destination": "/api/jawaban" }
+  "version": 2,
+  "builds": [
+    { "src": "api/**/*.js", "use": "@vercel/node" }
   ]
 }
