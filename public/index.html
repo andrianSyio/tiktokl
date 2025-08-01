@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Family 100 - LIVE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Reset dan background */
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(145deg, #111, #1a1a1a);
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin: 30px 0 10px;
+      color: #ffd700;
+      text-shadow: 2px 2px 10px #000;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      padding: 20px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .jawaban-box {
+      width: 100%;
+      background: #222;
+      border: 3px solid #ffd700;
+      padding: 20px;
+      border-radius: 15px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #00ffcc;
+      text-shadow: 1px 1px 5px #000;
+      display: none;
+    }
+
+    .jawaban-box.show {
+      display: block;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 10px;
+      font-size: 0.8rem;
+      color: #888;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2.2rem; }
+      .jawaban-box { font-size: 1.4rem; padding: 15px; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎉 FAMILY 100 LIVE 🎉</h1>
+  <div class="container" id="jawaban-container">
+    <!-- Jawaban muncul di sini -->
+  </div>
+
+  <footer>© 2025 | Game Interaktif TikTok Live</footer>
+
+  <script>
+    const container = document.getElementById("jawaban-container")
+
+    async function loadJawaban() {
+      const res = await fetch("/api/jawaban")
+      const data = await res.json()
+      container.innerHTML = ""
+
+      data.jawaban.forEach(text => {
+        const el = document.createElement("div")
+        el.className = "jawaban-box show"
+        el.innerText = text.toUpperCase()
+        container.appendChild(el)
+      })
+    }
+
+    setInterval(loadJawaban, 2000)
+    loadJawaban()
+  </script>
+
+</body>
+</html>
