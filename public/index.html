@@ -1,41 +1,35 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Family 100</title>
   <style>
     body { font-family: sans-serif; text-align: center; background: #111; color: white; }
-    .jawaban { margin: 5px; padding: 10px; background: #333; border-radius: 8px; }
+    .jawaban { margin-top: 20px; }
+    .kotak { border: 2px solid #fff; padding: 10px; margin: 5px; display: inline-block; min-width: 150px; }
   </style>
 </head>
 <body>
-  <h1>🎤 Family 100 TikTok</h1>
+  <h1>Family 100 🎮</h1>
   <h2 id="soal">Memuat soal...</h2>
-  <div id="jawaban"></div>
+
+  <div class="jawaban" id="daftarJawaban"></div>
 
   <script>
-    async function loadSoal() {
-      try {
-        const res = await fetch("https://tiktokl-khaki.vercel.app/api/state");
-        const data = await res.json();
+    fetch('/api/state')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('soal').textContent = data.soal;
 
-        document.getElementById("soal").innerText = data.soal;
-        const container = document.getElementById("jawaban");
-        container.innerHTML = "";
-
-        data.jawabanTerbuka.forEach((j, i) => {
-          const div = document.createElement("div");
-          div.className = "jawaban";
-          div.innerText = `${i + 1}. ${j.text} (+${j.poin}) - ${j.nama}`;
+        const container = document.getElementById('daftarJawaban');
+        data.jawaban.forEach(jw => {
+          const div = document.createElement('div');
+          div.className = 'kotak';
+          div.textContent = "????";
+          div.dataset.jawaban = jw.toLowerCase();
           container.appendChild(div);
         });
-      } catch (e) {
-        document.getElementById("soal").innerText = "Gagal memuat soal";
-      }
-    }
-
-    setInterval(loadSoal, 2000);
-    loadSoal();
+      });
   </script>
 </body>
 </html>
