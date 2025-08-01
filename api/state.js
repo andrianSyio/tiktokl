@@ -1,6 +1,14 @@
-let state = {
-  soalIndex: 0,
-  jawabanTerbuka: [],
-};
+// file: /api/state.js
+import { state } from '../../state';
 
-module.exports = { state };
+export default function handler(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const currentSoal = state.soalList[state.soalIndex];
+  res.status(200).json({
+    soal: currentSoal.soal,
+    jawabanTerbuka: state.jawabanTerbuka
+  });
+}
