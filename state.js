@@ -1,11 +1,13 @@
-import allSoal from './data';
+// state.js
+import { soalList } from "./data.js";
 
-let soalAcak = allSoal.sort(() => Math.random() - 0.5); // acak urutan soal
-
-let state = {
+export const state = {
   soalIndex: 0,
   jawabanTerbuka: [],
-  soalList: soalAcak
+  soalList: soalList
 };
 
-export { state };
+export function resetSoalBaru() {
+  state.soalIndex = (state.soalIndex + 1) % state.soalList.length;
+  state.jawabanTerbuka = [];
+}
