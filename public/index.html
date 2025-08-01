@@ -2,133 +2,40 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Family 100 LIVE</title>
+  <title>Family 100</title>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #111;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
-    h1 {
-      font-size: 2rem;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    #soal {
-      font-size: 2.5rem;
-      margin-bottom: 30px;
-      text-align: center;
-      color: #ffde59;
-    }
-    .jawaban-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      width: 100%;
-      max-width: 1000px;
-      margin-bottom: 40px;
-    }
-    .jawaban-box {
-      background-color: #222;
-      border: 2px solid #444;
-      padding: 20px;
-      text-align: center;
-      font-size: 1.5rem;
-      border-radius: 10px;
-      min-height: 80px;
-      position: relative;
-    }
-    .jawaban-box.revealed {
-      background-color: #03a9f4;
-      border-color: #03a9f4;
-      color: #fff;
-      animation: fadeIn 0.5s ease-in-out;
-    }
-    .jawaban-box .penjawab {
-      font-size: 1rem;
-      margin-top: 8px;
-      color: #ffeb3b;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    #notif {
-      font-size: 1.2rem;
-      color: #00e676;
-      margin-top: 10px;
-      height: 1.5em;
-    }
+    body { font-family: sans-serif; text-align: center; background: #111; color: white; }
+    .jawaban { margin: 5px; padding: 10px; background: #333; border-radius: 8px; }
   </style>
 </head>
 <body>
-
-  <h1>🟡 FAMILY 100 TIKTOK LIVE 🟡</h1>
-  <div id="soal">Memuat soal...</div>
-
-  <div class="jawaban-grid" id="grid"></div>
-
-  <div id="notif"></div>
+  <h1>🎤 Family 100 TikTok</h1>
+  <h2 id="soal">Memuat soal...</h2>
+  <div id="jawaban"></div>
 
   <script>
-    const socketPoll = 2000; // ms
-    let currentSoal = {};
-    let jawabanState = [];
-
-    async function fetchState() {
-      const res = await fetch("/api/state");
-      return res.json();
-    }
-
-    function render() {
-      document.getElementById("soal").textContent = currentSoal.soal || 'Soal kosong';
-      const grid = document.getElementById("grid");
-      grid.innerHTML = '';
-
-      currentSoal.jawaban.forEach((jwb, idx) => {
-        const box = document.createElement("div");
-        box.classList.add("jawaban-box");
-        const state = jawabanState.find(j => j.jawaban === jwb.toLowerCase());
-        if (state) {
-          box.classList.add("revealed");
-          box.innerHTML = `<strong>${jwb.toUpperCase()}</strong><div class="penjawab">+10 ${state.nama}</div>`;
-        } else {
-          box.innerHTML = "❓";
-        }
-        grid.appendChild(box);
-      });
-    }
-
-    async function poll() {
+    async function loadSoal() {
       try {
-        const data = await fetchState();
-        currentSoal = data.soal;
-        jawabanState = data.terjawab;
-        render();
+        const res = await fetch("https://tiktokl-khaki.vercel.app/api/state");
+        const data = await res.json();
 
-        // Kalau semua jawaban ditemukan, lanjut ke soal berikutnya
-        if (jawabanState.length >= currentSoal.jawaban.length) {
-          document.getElementById("notif").textContent = "✅ Semua jawaban ditemukan! Soal berikutnya...";
-          setTimeout(async () => {
-            await fetch("/api/next");
-            document.getElementById("notif").textContent = "";
-          }, 3000);
-        }
+        document.getElementById("soal").innerText = data.soal;
+        const container = document.getElementById("jawaban");
+        container.innerHTML = "";
 
+        data.jawabanTerbuka.forEach((j, i) => {
+          const div = document.createElement("div");
+          div.className = "jawaban";
+          div.innerText = `${i + 1}. ${j.text} (+${j.poin}) - ${j.nama}`;
+          container.appendChild(div);
+        });
       } catch (e) {
-        console.error("Error polling", e);
+        document.getElementById("soal").innerText = "Gagal memuat soal";
       }
     }
 
-    setInterval(poll, socketPoll);
-    poll(); // initial
+    setInterval(loadSoal, 2000);
+    loadSoal();
   </script>
-
 </body>
 </html>
