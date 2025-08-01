@@ -1,95 +1,133 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Family 100 - LIVE</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Family 100 LIVE</title>
   <style>
     body {
       margin: 0;
-      padding: 20px;
-      background: #f0f0f0;
       font-family: 'Segoe UI', sans-serif;
-      color: #333;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 2.5rem;
-      color: #0066cc;
-      margin-bottom: 20px;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
+      background-color: #111;
+      color: white;
       display: flex;
       flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #soal {
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      text-align: center;
+      color: #ffde59;
+    }
+    .jawaban-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 15px;
+      width: 100%;
+      max-width: 1000px;
+      margin-bottom: 40px;
     }
-
     .jawaban-box {
-      background: white;
-      border: 2px solid #0066cc;
+      background-color: #222;
+      border: 2px solid #444;
+      padding: 20px;
+      text-align: center;
+      font-size: 1.5rem;
       border-radius: 10px;
-      padding: 15px;
-      font-size: 1.8rem;
-      font-weight: bold;
-      color: #0066cc;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      display: none;
+      min-height: 80px;
+      position: relative;
     }
-
-    .jawaban-box.show {
-      display: block;
-      animation: fadeIn 0.3s ease-in-out;
+    .jawaban-box.revealed {
+      background-color: #03a9f4;
+      border-color: #03a9f4;
+      color: #fff;
+      animation: fadeIn 0.5s ease-in-out;
     }
-
+    .jawaban-box .penjawab {
+      font-size: 1rem;
+      margin-top: 8px;
+      color: #ffeb3b;
+    }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
     }
-
-    footer {
-      margin-top: 30px;
-      font-size: 0.9rem;
-      color: #aaa;
-    }
-
-    @media (max-width: 600px) {
-      h1 { font-size: 2rem; }
-      .jawaban-box { font-size: 1.4rem; padding: 12px; }
+    #notif {
+      font-size: 1.2rem;
+      color: #00e676;
+      margin-top: 10px;
+      height: 1.5em;
     }
   </style>
 </head>
 <body>
 
-  <h1>🧠 Family 100 - LIVE</h1>
+  <h1>🟡 FAMILY 100 TIKTOK LIVE 🟡</h1>
+  <div id="soal">Memuat soal...</div>
 
-  <div class="container" id="jawaban-container">
-    <!-- Kotak jawaban muncul di sini -->
-  </div>
+  <div class="jawaban-grid" id="grid"></div>
 
-  <footer>© 2025 | Game TikTok Live</footer>
+  <div id="notif"></div>
 
   <script>
-    const container = document.getElementById("jawaban-container");
+    const socketPoll = 2000; // ms
+    let currentSoal = {};
+    let jawabanState = [];
 
-    async function loadJawaban() {
-      const res = await fetch("/api/jawaban");
-      const data = await res.json();
-      container.innerHTML = "";
+    async function fetchState() {
+      const res = await fetch("/api/state");
+      return res.json();
+    }
 
-      data.jawaban.forEach(text => {
-        const el = document.createElement("div");
-        el.className = "jawaban-box show";
-        el.innerText = text.toUpperCase();
-        container.appendChild(el);
+    function render() {
+      document.getElementById("soal").textContent = currentSoal.soal || 'Soal kosong';
+      const grid = document.getElementById("grid");
+      grid.innerHTML = '';
+
+      currentSoal.jawaban.forEach((jwb, idx) => {
+        const box = document.createElement("div");
+        box.classList.add("jawaban-box");
+        const state = jawabanState.find(j => j.jawaban === jwb.toLowerCase());
+        if (state) {
+          box.classList.add("revealed");
+          box.innerHTML = `<strong>${jwb.toUpperCase()}</strong><div class="penjawab">+10 ${state.nama}</div>`;
+        } else {
+          box.innerHTML = "❓";
+        }
+        grid.appendChild(box);
       });
     }
 
-    setInterval(loadJawaban, 2000);
-    loadJawaban();
+    async function poll() {
+      try {
+        const data = await fetchState();
+        currentSoal = data.soal;
+        jawabanState = data.terjawab;
+        render();
+
+        // Kalau semua jawaban ditemukan, lanjut ke soal berikutnya
+        if (jawabanState.length >= currentSoal.jawaban.length) {
+          document.getElementById("notif").textContent = "✅ Semua jawaban ditemukan! Soal berikutnya...";
+          setTimeout(async () => {
+            await fetch("/api/next");
+            document.getElementById("notif").textContent = "";
+          }, 3000);
+        }
+
+      } catch (e) {
+        console.error("Error polling", e);
+      }
+    }
+
+    setInterval(poll, socketPoll);
+    poll(); // initial
   </script>
 
 </body>
