@@ -5,98 +5,91 @@
   <title>Family 100 - LIVE</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    /* Reset dan background */
     body {
       margin: 0;
-      padding: 0;
-      background: linear-gradient(145deg, #111, #1a1a1a);
-      color: #fff;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      background: #f0f0f0;
+      font-family: 'Segoe UI', sans-serif;
+      color: #333;
       text-align: center;
-      min-height: 100vh;
-      overflow-x: hidden;
     }
 
     h1 {
-      font-size: 3rem;
-      margin: 30px 0 10px;
-      color: #ffd700;
-      text-shadow: 2px 2px 10px #000;
+      font-size: 2.5rem;
+      color: #0066cc;
+      margin-bottom: 20px;
     }
 
     .container {
+      max-width: 600px;
+      margin: 0 auto;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      padding: 20px;
-      max-width: 700px;
-      margin: 0 auto;
+      gap: 15px;
     }
 
     .jawaban-box {
-      width: 100%;
-      background: #222;
-      border: 3px solid #ffd700;
-      padding: 20px;
-      border-radius: 15px;
+      background: white;
+      border: 2px solid #0066cc;
+      border-radius: 10px;
+      padding: 15px;
       font-size: 1.8rem;
       font-weight: bold;
-      color: #00ffcc;
-      text-shadow: 1px 1px 5px #000;
+      color: #0066cc;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       display: none;
     }
 
     .jawaban-box.show {
       display: block;
-      animation: fadeIn 0.4s ease-in-out;
+      animation: fadeIn 0.3s ease-in-out;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     footer {
-      margin-top: auto;
-      padding: 10px;
-      font-size: 0.8rem;
-      color: #888;
+      margin-top: 30px;
+      font-size: 0.9rem;
+      color: #aaa;
     }
 
     @media (max-width: 600px) {
-      h1 { font-size: 2.2rem; }
-      .jawaban-box { font-size: 1.4rem; padding: 15px; }
+      h1 { font-size: 2rem; }
+      .jawaban-box { font-size: 1.4rem; padding: 12px; }
     }
   </style>
 </head>
 <body>
 
-  <h1>🎉 FAMILY 100 LIVE 🎉</h1>
+  <h1>🧠 Family 100 - LIVE</h1>
+
   <div class="container" id="jawaban-container">
-    <!-- Jawaban muncul di sini -->
+    <!-- Kotak jawaban muncul di sini -->
   </div>
 
-  <footer>© 2025 | Game Interaktif TikTok Live</footer>
+  <footer>© 2025 | Game TikTok Live</footer>
 
   <script>
-    const container = document.getElementById("jawaban-container")
+    const container = document.getElementById("jawaban-container");
 
     async function loadJawaban() {
-      const res = await fetch("/api/jawaban")
-      const data = await res.json()
-      container.innerHTML = ""
+      const res = await fetch("/api/jawaban");
+      const data = await res.json();
+      container.innerHTML = "";
 
       data.jawaban.forEach(text => {
-        const el = document.createElement("div")
-        el.className = "jawaban-box show"
-        el.innerText = text.toUpperCase()
-        container.appendChild(el)
-      })
+        const el = document.createElement("div");
+        el.className = "jawaban-box show";
+        el.innerText = text.toUpperCase();
+        container.appendChild(el);
+      });
     }
 
-    setInterval(loadJawaban, 2000)
-    loadJawaban()
+    setInterval(loadJawaban, 2000);
+    loadJawaban();
   </script>
 
 </body>
